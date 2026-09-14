@@ -13,6 +13,8 @@ import (
 	relayv1 "github.com/lihongjie0209/relaycat/gen/relay/v1"
 	"github.com/lihongjie0209/relaycat/internal/accesscode"
 	"github.com/lihongjie0209/relaycat/internal/tunnelcrypto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 )
 
 type ClientConfig struct {
@@ -35,6 +37,7 @@ func RunClient(ctx context.Context, cfg ClientConfig, ready func(net.Addr)) erro
 		return err
 	}
 	defer func() { _ = conn.Close() }()
+	warmGRPCConnection(ctx, conn, 10*time.Second)
 	ln, err := net.Listen("tcp", cfg.Listen)
 	if err != nil {
 		return fmt.Errorf("listening locally: %w", err)
@@ -62,6 +65,21 @@ func RunClient(ctx context.Context, cfg ClientConfig, ready func(net.Addr)) erro
 		})
 		if cfg.Once {
 			return nil
+		}
+	}
+}
+
+func warmGRPCConnection(ctx context.Context, conn *grpc.ClientConn, timeout time.Duration) {
+	warmCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	conn.Connect()
+	for {
+		state := conn.GetState()
+		if state == connectivity.Ready {
+			return
+		}
+		if !conn.WaitForStateChange(warmCtx, state) {
+			return
 		}
 	}
 }
