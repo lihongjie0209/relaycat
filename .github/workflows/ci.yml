@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go: ["1.25.x", "stable"]
+        go: ["1.26.x", "stable"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

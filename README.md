@@ -22,7 +22,7 @@ as a password.
 
 ## Build
 
-Go 1.25 or newer is required.
+Go 1.26 or newer is required.
 
 ```sh
 make generate
