@@ -15,6 +15,10 @@ builds:
       - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
 archives:
   - formats: [tar.gz]
+    files:
+      - LICENSE
+      - README.md
+      - THIRD_PARTY_NOTICES.md
     format_overrides:
       - goos: windows
         formats: [zip]

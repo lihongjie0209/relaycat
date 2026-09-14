@@ -58,3 +58,14 @@ func TestLoadConfigAppliesOnlyUnchangedFlags(t *testing.T) {
 		t.Fatal("boolean configuration was not applied")
 	}
 }
+
+func TestServeSSHRequiresAuthorizedKeys(t *testing.T) {
+	t.Parallel()
+	var out, errOut bytes.Buffer
+	err := Execute(context.Background(), &out, &errOut, []string{
+		"serve", "ssh", "--relay", "http://127.0.0.1:1", "--allow-insecure-relay",
+	})
+	if err == nil || !strings.Contains(err.Error(), "authorized-keys-file") {
+		t.Fatalf("error = %v", err)
+	}
+}

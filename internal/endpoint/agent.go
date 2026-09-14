@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -24,9 +25,13 @@ type AgentConfig struct {
 	DialTimeout   time.Duration
 	IdleTimeout   time.Duration
 	Logger        *slog.Logger
+	Handler       func(context.Context, net.Conn) error
 }
 
 func RunAgent(ctx context.Context, cfg AgentConfig) error {
+	if (cfg.Target == "") == (cfg.Handler == nil) {
+		return fmt.Errorf("exactly one target or connection handler is required")
+	}
 	if cfg.MaxTunnels <= 0 {
 		cfg.MaxTunnels = 128
 	}
@@ -103,15 +108,37 @@ func handleAgentTunnel(ctx context.Context, client relayv1.RelayServiceClient, c
 	if err := stream.Send(&relayv1.AcceptRequest{Body: &relayv1.AcceptRequest_AgentAccept{AgentAccept: &relayv1.AgentAccept{ProtocolVersion: accesscode.ProtocolVersion, SessionId: incoming.SessionId, AgentHello: agentHello}}}); err != nil {
 		return fmt.Errorf("accepting tunnel: %w", err)
 	}
-	dialer := net.Dialer{Timeout: cfg.DialTimeout}
-	target, err := dialer.DialContext(ctx, "tcp", cfg.Target)
+	target, handlerDone, err := openTarget(ctx, cfg)
 	if err != nil {
 		_ = SendClose(adapter, crypt, relayv1.CloseCode_CLOSE_CODE_TARGET_UNREACHABLE, "target is unreachable")
 		_ = stream.CloseSend()
-		return fmt.Errorf("dialing target: %w", err)
+		return err
 	}
 	defer func() { _ = target.Close() }()
-	return Bridge(ctx, target, adapter, crypt, cfg.IdleTimeout)
+	bridgeErr := Bridge(ctx, target, adapter, crypt, cfg.IdleTimeout)
+	if handlerDone == nil {
+		return bridgeErr
+	}
+	_ = target.Close()
+	return errors.Join(bridgeErr, <-handlerDone)
+}
+
+func openTarget(ctx context.Context, cfg AgentConfig) (net.Conn, <-chan error, error) {
+	if cfg.Handler == nil {
+		dialer := net.Dialer{Timeout: cfg.DialTimeout}
+		conn, err := dialer.DialContext(ctx, "tcp", cfg.Target)
+		if err != nil {
+			return nil, nil, fmt.Errorf("dialing target: %w", err)
+		}
+		return conn, nil, nil
+	}
+	bridgeConn, handlerConn := net.Pipe()
+	done := make(chan error, 1)
+	go func() {
+		defer func() { _ = handlerConn.Close() }()
+		done <- cfg.Handler(ctx, handlerConn)
+	}()
+	return bridgeConn, done, nil
 }
 
 type agentCipherStream struct {

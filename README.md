@@ -59,6 +59,25 @@ relaycat connect rc1_xxx --allow-insecure-relay --listen 127.0.0.1:2222
 ssh -p 2222 user@127.0.0.1
 ```
 
+Relaycat can also provide the SSH server itself, without requiring `sshd`:
+
+```sh
+relaycat serve ssh \
+  --relay http://127.0.0.1:8080 \
+  --allow-insecure-relay \
+  --authorized-keys-file ~/.ssh/authorized_keys \
+  --state ~/.config/relaycat/builtin-ssh.json
+```
+
+Connect to its printed code in the same way. The SSH server executes commands
+as the user running `relaycat`. Its Ed25519 host key is persisted under the
+platform user configuration directory by default; use `--host-key` to choose a
+different path. Multiple `--authorized-keys-file` flags are supported.
+
+For an intentionally unauthenticated server, use `serve no-auth-ssh`. Anyone
+who obtains that connection code can execute commands as the Relaycat process
+user, so this mode should only be used with a securely shared code.
+
 `connect` accepts concurrent local connections until interrupted. Add `--once`
 to accept one connection.
 
@@ -112,7 +131,7 @@ relay.example.com {
 
 ## Persistent connection codes
 
-By default, `expose` generates a fresh code for each run. Persist one explicitly:
+By default, `expose` and `serve` generate a fresh code for each run. Persist one explicitly:
 
 ```sh
 relaycat expose ... --state ~/.config/relaycat/ssh.json
