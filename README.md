@@ -30,6 +30,11 @@ make test
 make build
 ```
 
+Run repeatable microbenchmarks with `make benchmark`. They cover connection-code
+serialization, Noise handshakes, and encrypted transport frames up to the
+32 KiB tunnel chunk size. `make benchmark-integration` measures a complete TCP
+round trip through the gRPC Relay and both encrypted endpoints.
+
 ## Quick start
 
 For a local development Relay without TLS or authentication:

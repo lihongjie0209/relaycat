@@ -38,6 +38,17 @@ jobs:
       - run: buf lint
       - run: buf generate && git diff --exit-code -- gen
 
+  benchmark-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: true
+      - run: go test -run '^$' -bench . -benchmem -benchtime=100ms ./internal/accesscode ./internal/tunnelcrypto
+      - run: go test -run '^$' -tags=integration -bench EndToEnd -benchmem -benchtime=100ms ./internal/endpoint
+
   lint:
     runs-on: ubuntu-latest
     steps:
