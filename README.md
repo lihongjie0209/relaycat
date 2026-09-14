@@ -149,6 +149,27 @@ example `RELAYCAT_LOG_LEVEL` and `RELAYCAT_IDLE_TIMEOUT`. Relaycat reads
 `config.yaml` from the platform user configuration directory's `relaycat`
 subdirectory, or a file selected with `--config`.
 
+## Linux systemd service
+
+Run as root and place the complete Relaycat command after `--`:
+
+```sh
+sudo relaycat service install --name relaycat-ssh -- \
+  serve ssh \
+  --relay https://relay.example.com \
+  --authorized-keys-file /etc/relaycat/authorized_keys \
+  --host-key /var/lib/relaycat/ssh_host_ed25519_key \
+  --state /var/lib/relaycat/ssh-state.json
+
+sudo relaycat service start --name relaycat-ssh
+relaycat service status --name relaycat-ssh
+```
+
+Installation writes `/etc/systemd/system/relaycat-ssh.service`, reloads systemd,
+and enables it at boot when `--startup automatic` is selected. Services restart
+after failures and receive `SIGTERM` for graceful shutdown. Uninstalling stops
+and disables the service before removing its unit file.
+
 ## Windows service
 
 Run an elevated PowerShell terminal and register any long-running Relaycat

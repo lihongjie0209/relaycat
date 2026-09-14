@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-var ErrUnsupported = errors.New("Windows services are only supported on Windows") //nolint:staticcheck // Windows is a proper product name.
+var ErrUnsupported = errors.New("service management is only supported on Windows and Linux")
 
 type InstallConfig struct {
 	Name        string

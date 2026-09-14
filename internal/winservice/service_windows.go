@@ -26,11 +26,13 @@ func Install(cfg InstallConfig) error {
 	if cfg.Automatic {
 		startType = mgr.StartAutomatic
 	}
+	serviceArgs := []string{"service", "run", "--name", cfg.Name, "--"}
+	serviceArgs = append(serviceArgs, cfg.Arguments...)
 	service, err := m.CreateService(cfg.Name, cfg.Executable, mgr.Config{
 		DisplayName: cfg.DisplayName,
 		Description: cfg.Description,
 		StartType:   startType,
-	}, cfg.Arguments...)
+	}, serviceArgs...)
 	if err != nil {
 		return fmt.Errorf("creating Windows service %q: %w", cfg.Name, err)
 	}

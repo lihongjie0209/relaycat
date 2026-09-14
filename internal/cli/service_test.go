@@ -34,8 +34,8 @@ func TestServiceInstallValidation(t *testing.T) {
 }
 
 func TestServiceCommandsReportUnsupportedPlatform(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("non-Windows behavior")
+	if runtime.GOOS == "windows" || runtime.GOOS == "linux" {
+		t.Skip("unsupported-platform behavior")
 	}
 	t.Parallel()
 	var stdout, stderr bytes.Buffer
