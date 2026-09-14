@@ -59,6 +59,25 @@ Use this mapping:
 
 ### Connect and SSH
 
+For a single SSH session, prefer the integrated command. It creates an
+ephemeral loopback listener and removes it when OpenSSH exits:
+
+```sh
+passman run \
+  --env RELAYCAT_CODE=path/to/entry#connection_code \
+  -- relaycat ssh --no-auth --accept-new-host-key
+```
+
+Pass a remote command directly after the connection code, or after the flags
+when using `RELAYCAT_CODE`:
+
+```sh
+relaycat ssh admin@rc1_REDACTED hostname
+```
+
+Use the longer-running connector below for multiple applications or when a
+fixed local port is required.
+
 Keep the connector running in one terminal:
 
 ```sh

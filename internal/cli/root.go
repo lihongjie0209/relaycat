@@ -41,7 +41,7 @@ func NewRoot(ctx context.Context, stdout, stderr io.Writer) *cobra.Command {
 	root.PersistentFlags().StringVar(&opts.logLevel, "log-level", "info", "debug, info, warn, or error")
 	root.PersistentFlags().StringVar(&opts.logFormat, "log-format", "text", "text or json")
 	root.PersistentPreRunE = func(cmd *cobra.Command, _ []string) error { return loadConfig(cmd, opts) }
-	root.AddCommand(newRelayCommand(ctx, opts), newExposeCommand(ctx, opts), newServeCommand(ctx, opts), newConnectCommand(ctx, opts), newServiceCommand(stdout, stderr), newVersionCommand(), newCompletionCommand(root))
+	root.AddCommand(newRelayCommand(ctx, opts), newExposeCommand(ctx, opts), newServeCommand(ctx, opts), newConnectCommand(ctx, opts), newSSHCommand(ctx, opts), newServiceCommand(stdout, stderr), newVersionCommand(), newCompletionCommand(root))
 	return root
 }
 

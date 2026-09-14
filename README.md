@@ -63,6 +63,27 @@ relaycat connect rc1_xxx --allow-insecure-relay --listen 127.0.0.1:2222
 ssh -p 2222 user@127.0.0.1
 ```
 
+For a one-shot SSH session, let Relaycat create and clean up the temporary
+listener automatically:
+
+```sh
+relaycat ssh user@rc1_xxx
+relaycat ssh user@rc1_xxx hostname
+```
+
+To keep the code out of the process arguments, inject `RELAYCAT_CODE`. For a
+deliberately unauthenticated built-in SSH endpoint stored in passman:
+
+```sh
+passman run \
+  --env RELAYCAT_CODE=ssh/example#connection_code \
+  -- relaycat ssh --no-auth --accept-new-host-key
+```
+
+Relaycat uses a stable host-key alias derived only from the route ID, so SSH
+host-key change detection continues to work even though the temporary local
+port changes. Use `--code-file` to read a protected code file instead.
+
 Relaycat can also provide the SSH server itself, without requiring `sshd`:
 
 ```sh
