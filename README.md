@@ -35,7 +35,7 @@ make build
 For a local development Relay without TLS or authentication:
 
 ```sh
-relaycat relay --listen 127.0.0.1:8080 --h2c --no-auth
+relaycat relay --listen 127.0.0.1:8080 --h2c
 ```
 
 Expose a local SSH server:
@@ -73,8 +73,10 @@ relaycat relay --listen :8443 \
   --metrics-listen 127.0.0.1:9090
 ```
 
-Both endpoint processes receive the token separately; it is deliberately not
-embedded in the connection code:
+The Relay token is optional. When the Relay has no token configured, endpoints
+connect without one. When `--auth-token-file` or `RELAYCAT_AUTH_TOKEN` configures
+a Relay token, both endpoint processes must provide the matching value. It is
+deliberately not embedded in the connection code:
 
 ```sh
 relaycat expose --relay https://relay.example.com:8443 \

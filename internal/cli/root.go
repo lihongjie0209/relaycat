@@ -147,7 +147,7 @@ func newRelayCommand(ctx context.Context, root *rootOptions) *cobra.Command {
 	f.BoolVar(&h2c, "h2c", false, "serve cleartext HTTP/2 for a trusted reverse proxy")
 	f.BoolVar(&publicH2C, "allow-public-h2c", false, "allow h2c on a non-loopback address")
 	f.StringVar(&tokenFile, "auth-token-file", "", "file containing the Relay bearer token")
-	f.BoolVar(&noAuth, "no-auth", false, "explicitly disable Relay authentication")
+	f.BoolVar(&noAuth, "no-auth", false, "disable Relay authentication even when a token is configured")
 	f.BoolVar(&reflect, "reflection", false, "enable gRPC reflection")
 	f.StringVar(&metrics, "metrics-listen", "", "optional Prometheus HTTP listen address")
 	f.BoolVar(&pprof, "pprof", false, "serve pprof on the loopback metrics listener")

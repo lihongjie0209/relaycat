@@ -45,9 +45,6 @@ func RunServer(ctx context.Context, cfg ServerConfig, ready func(net.Addr)) erro
 	if cfg.ShutdownTimeout <= 0 {
 		cfg.ShutdownTimeout = 15 * time.Second
 	}
-	if !cfg.NoAuth && cfg.Token == "" {
-		return errors.New("relay authentication token is required; use --no-auth only for trusted development")
-	}
 	if cfg.H2C && !cfg.AllowPublicH2C && !isLoopbackListen(cfg.Listen) {
 		return errors.New("h2c may only bind loopback unless --allow-public-h2c is set")
 	}

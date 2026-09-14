@@ -16,7 +16,7 @@ import (
 func StreamAuthInterceptor(expected string, noAuth bool) grpc.StreamServerInterceptor {
 	want := sha256.Sum256([]byte(expected))
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		if noAuth {
+		if noAuth || expected == "" {
 			return handler(srv, ss)
 		}
 		md, ok := metadata.FromIncomingContext(ss.Context())
@@ -41,7 +41,7 @@ func StreamAuthInterceptor(expected string, noAuth bool) grpc.StreamServerInterc
 func UnaryAuthInterceptor(expected string, noAuth bool) grpc.UnaryServerInterceptor {
 	want := sha256.Sum256([]byte(expected))
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		if noAuth {
+		if noAuth || expected == "" {
 			return handler(ctx, req)
 		}
 		md, ok := metadata.FromIncomingContext(ctx)
