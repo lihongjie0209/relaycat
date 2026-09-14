@@ -1,0 +1,7 @@
+/relaycat
+/dist/
+/coverage.out
+*.test
+*.prof
+.idea/
+.vscode/

@@ -1,0 +1,24 @@
+groups:
+  - name: relaycat
+    rules:
+      - alert: RelaycatNoAgents
+        expr: relaycat_agents == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Relaycat Relay has no connected agents
+      - alert: RelaycatAuthenticationFailures
+        expr: rate(relaycat_auth_rejects_total[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Relaycat authentication failures are elevated
+      - alert: RelaycatTunnelRejections
+        expr: rate(relaycat_tunnel_opens_total{result="rejected"}[5m]) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Relaycat is rejecting tunnel requests

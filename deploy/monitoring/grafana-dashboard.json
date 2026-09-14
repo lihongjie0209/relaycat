@@ -1,0 +1,14 @@
+{
+  "title": "Relaycat Relay",
+  "uid": "relaycat",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {"type": "stat", "title": "Connected agents", "targets": [{"expr": "relaycat_agents"}], "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0}},
+    {"type": "stat", "title": "Active tunnels", "targets": [{"expr": "relaycat_tunnels"}], "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0}},
+    {"type": "timeseries", "title": "Relay throughput", "targets": [{"expr": "sum by (direction) (rate(relaycat_relayed_bytes_total[5m]))", "legendFormat": "{{direction}}"}], "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6}},
+    {"type": "timeseries", "title": "Tunnel opens", "targets": [{"expr": "sum by (result) (rate(relaycat_tunnel_opens_total[5m]))", "legendFormat": "{{result}}"}], "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6}}
+  ]
+}

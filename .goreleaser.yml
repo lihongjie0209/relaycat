@@ -1,0 +1,26 @@
+version: 2
+project_name: relaycat
+builds:
+  - id: relaycat
+    main: ./cmd/relaycat
+    binary: relaycat
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Version={{.Version}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Commit={{.Commit}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+sboms:
+  - artifacts: archive
+changelog:
+  sort: asc

@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package relay.v1;
+
+option go_package = "github.com/lihongjie0209/relaycat/gen/relay/v1;relayv1";
+
+service RelayService {
+  rpc RegisterAgent(RegisterAgentRequest) returns (stream RegisterAgentResponse);
+  rpc Connect(stream ConnectRequest) returns (stream ConnectResponse);
+  rpc Accept(stream AcceptRequest) returns (stream AcceptResponse);
+}
+
+message RegisterAgentRequest {
+  uint32 protocol_version = 1;
+  bytes route_id = 2;
+}
+
+message RegisterAgentResponse {
+  uint32 protocol_version = 1;
+  bytes session_id = 2;
+  bytes client_hello = 3;
+}
+
+message ClientOpen {
+  uint32 protocol_version = 1;
+  bytes route_id = 2;
+}
+
+message ClientHandshake {
+  bytes client_hello = 1;
+}
+
+message SessionAssigned {
+  bytes session_id = 1;
+}
+
+message AgentAccept {
+  uint32 protocol_version = 1;
+  bytes session_id = 2;
+  bytes agent_hello = 3;
+}
+
+message Ciphertext {
+  bytes payload = 1;
+}
+
+message ConnectRequest {
+  oneof body {
+    ClientOpen client_open = 1;
+    ClientHandshake client_handshake = 2;
+    Ciphertext ciphertext = 3;
+  }
+}
+
+message ConnectResponse {
+  oneof body {
+    SessionAssigned session_assigned = 1;
+    AgentAccept agent_accept = 2;
+    Ciphertext ciphertext = 3;
+  }
+}
+
+message AcceptRequest {
+  oneof body {
+    AgentAccept agent_accept = 1;
+    Ciphertext ciphertext = 2;
+  }
+}
+
+message AcceptResponse {
+  oneof body {
+    Ciphertext ciphertext = 1;
+  }
+}
+
+message PlainFrame {
+  oneof body {
+    bytes data = 1;
+    HalfClose half_close = 2;
+    Close close = 3;
+  }
+}
+
+message HalfClose {}
+
+message Close {
+  CloseCode code = 1;
+  string message = 2;
+}
+
+enum CloseCode {
+  CLOSE_CODE_UNSPECIFIED = 0;
+  CLOSE_CODE_NORMAL = 1;
+  CLOSE_CODE_TARGET_UNREACHABLE = 2;
+  CLOSE_CODE_IDLE_TIMEOUT = 3;
+  CLOSE_CODE_INTERNAL = 4;
+}
+
+message ConnectionCode {
+  uint32 protocol_version = 1;
+  string relay_url = 2;
+  bytes route_id = 3;
+  bytes preshared_key = 4;
+}
