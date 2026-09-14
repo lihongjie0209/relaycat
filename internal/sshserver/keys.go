@@ -46,16 +46,16 @@ func loadOrCreateHostKey(path string) (gossh.Signer, error) {
 		return nil, fmt.Errorf("encoding SSH host key: %w", err)
 	}
 	pemData := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der})
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600) // #nosec G304 -- operator-selected host key path.
-	if errors.Is(err, os.ErrExist) {
-		key, err = readPrivateKey(path)
-		if err != nil {
-			return nil, err
-		}
-		return gossh.ParsePrivateKey(key)
-	}
+	dir := filepath.Dir(path)
+	f, err := os.CreateTemp(dir, "."+filepath.Base(path)+".tmp-*")
 	if err != nil {
-		return nil, fmt.Errorf("creating SSH host key: %w", err)
+		return nil, fmt.Errorf("creating temporary SSH host key: %w", err)
+	}
+	temporaryPath := f.Name()
+	defer func() { _ = os.Remove(temporaryPath) }()
+	if err := f.Chmod(0o600); err != nil {
+		_ = f.Close()
+		return nil, fmt.Errorf("setting SSH host key permissions: %w", err)
 	}
 	if _, err := f.Write(pemData); err != nil {
 		_ = f.Close()
@@ -67,6 +67,16 @@ func loadOrCreateHostKey(path string) (gossh.Signer, error) {
 	}
 	if err := f.Close(); err != nil {
 		return nil, fmt.Errorf("closing SSH host key: %w", err)
+	}
+	if err := os.Link(temporaryPath, path); err != nil {
+		if !errors.Is(err, os.ErrExist) {
+			return nil, fmt.Errorf("publishing SSH host key: %w", err)
+		}
+		key, err = readPrivateKey(path)
+		if err != nil {
+			return nil, err
+		}
+		return gossh.ParsePrivateKey(key)
 	}
 	return gossh.ParsePrivateKey(pemData)
 }

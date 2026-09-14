@@ -69,3 +69,56 @@ func TestServeSSHRequiresAuthorizedKeys(t *testing.T) {
 		t.Fatalf("error = %v", err)
 	}
 }
+
+func TestServeRejectsInvalidModesAndArguments(t *testing.T) {
+	t.Parallel()
+	keyFile := filepath.Join(t.TempDir(), "authorized_keys")
+	if err := os.WriteFile(keyFile, []byte("unused"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		name string
+		args []string
+		want string
+	}{
+		{name: "unknown mode", args: []string{"serve", "http", "--relay", "http://127.0.0.1:1", "--allow-insecure-relay"}, want: "unknown service"},
+		{name: "no auth with key", args: []string{"serve", "no-auth-ssh", "--relay", "http://127.0.0.1:1", "--allow-insecure-relay", "--authorized-keys-file", keyFile}, want: "cannot be used"},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			var out, errOut bytes.Buffer
+			err := Execute(context.Background(), &out, &errOut, test.args)
+			if err == nil || !strings.Contains(err.Error(), test.want) {
+				t.Fatalf("error = %v, want substring %q", err, test.want)
+			}
+		})
+	}
+}
+
+func TestWriteConnectionCode(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		format string
+		want   string
+		isErr  bool
+	}{
+		{name: "plain", format: "plain", want: "rc1_example\n"},
+		{name: "json", format: "json", want: "{\"connection_code\":\"rc1_example\"}\n"},
+		{name: "invalid", format: "yaml", isErr: true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			var out bytes.Buffer
+			err := writeConnectionCode(&out, test.format, "rc1_example")
+			if (err != nil) != test.isErr {
+				t.Fatalf("error = %v, want error %v", err, test.isErr)
+			}
+			if out.String() != test.want {
+				t.Fatalf("output = %q, want %q", out.String(), test.want)
+			}
+		})
+	}
+}
