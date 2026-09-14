@@ -149,6 +149,30 @@ example `RELAYCAT_LOG_LEVEL` and `RELAYCAT_IDLE_TIMEOUT`. Relaycat reads
 `config.yaml` from the platform user configuration directory's `relaycat`
 subdirectory, or a file selected with `--config`.
 
+## Windows service
+
+Run an elevated PowerShell terminal and register any long-running Relaycat
+command after `--`. For example, to install the built-in SSH server with an
+automatic startup type:
+
+```powershell
+relaycat service install --name relaycat-ssh -- `
+  serve ssh `
+  --relay https://relay.example.com `
+  --authorized-keys-file C:\ProgramData\relaycat\authorized_keys `
+  --host-key C:\ProgramData\relaycat\ssh_host_ed25519_key `
+  --state C:\ProgramData\relaycat\ssh-state.json
+
+relaycat service start --name relaycat-ssh
+relaycat service status --name relaycat-ssh
+```
+
+The service runs as `LocalSystem` unless its account is changed with Windows
+service-management tools. Use absolute paths because services do not inherit
+an interactive user's working directory or profile. Other lifecycle commands
+are `service stop` and `service uninstall`; use `--startup manual` during
+installation when automatic startup is not desired.
+
 ## Operations
 
 - Standard gRPC health checking is registered. `/healthz` and `/metrics` are
