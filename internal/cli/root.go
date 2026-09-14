@@ -263,7 +263,7 @@ func newConnectCommand(ctx context.Context, root *rootOptions) *cobra.Command {
 }
 
 func newServeCommand(ctx context.Context, root *rootOptions) *cobra.Command {
-	var relayURL, state, tokenFile, caFile, hostKey, output string
+	var relayURL, state, tokenFile, caFile, hostKey, output, connectionCodeFile string
 	var authorizedKeyFiles []string
 	var allowInsecure bool
 	var idleTimeout time.Duration
@@ -323,8 +323,27 @@ func newServeCommand(ctx context.Context, root *rootOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err := writeConnectionCode(cmd.OutOrStdout(), output, encoded); err != nil {
+			connectionCodeWriter := cmd.OutOrStdout()
+			var connectionCodeOutput *os.File
+			if connectionCodeFile != "" {
+				connectionCodeFile = expandHome(connectionCodeFile)
+				// #nosec G304 -- the path is explicitly selected by the operator.
+				connectionCodeOutput, err = os.OpenFile(connectionCodeFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+				if err != nil {
+					return fmt.Errorf("opening connection code file: %w", err)
+				}
+				connectionCodeWriter = connectionCodeOutput
+			}
+			if err := writeConnectionCode(connectionCodeWriter, output, encoded); err != nil {
+				if connectionCodeOutput != nil {
+					_ = connectionCodeOutput.Close()
+				}
 				return err
+			}
+			if connectionCodeOutput != nil {
+				if err := connectionCodeOutput.Close(); err != nil {
+					return fmt.Errorf("closing connection code file: %w", err)
+				}
 			}
 			if mode == "no-auth-ssh" {
 				_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "WARNING: anyone with this connection code can run commands as the current user")
@@ -348,6 +367,7 @@ func newServeCommand(ctx context.Context, root *rootOptions) *cobra.Command {
 	f.StringSliceVar(&authorizedKeyFiles, "authorized-keys-file", nil, "OpenSSH authorized_keys file; may be repeated")
 	f.BoolVar(&allowInsecure, "allow-insecure-relay", false, "allow a cleartext http Relay URL")
 	f.StringVar(&output, "output", "plain", "plain or json")
+	f.StringVar(&connectionCodeFile, "connection-code-file", "", "write the connection code to a file instead of stdout")
 	f.DurationVar(&idleTimeout, "idle-timeout", 30*time.Minute, "close a tunnel after this much inactivity")
 	_ = cmd.MarkFlagRequired("relay")
 	return cmd

@@ -69,6 +69,16 @@ relaycat serve ssh \
   --state ~/.config/relaycat/builtin-ssh.json
 ```
 
+When running without an attached terminal, such as a Windows service, write the
+stable connection code to a protected file instead of standard output:
+
+```sh
+relaycat serve no-auth-ssh \
+  --relay https://relay.example.com \
+  --state relaycat-ssh-state.json \
+  --connection-code-file relaycat-ssh.code
+```
+
 Connect to its printed code in the same way. The SSH server executes commands
 as the user running `relaycat`. Its Ed25519 host key is persisted under the
 platform user configuration directory by default; use `--host-key` to choose a

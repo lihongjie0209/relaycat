@@ -122,3 +122,40 @@ func TestWriteConnectionCode(t *testing.T) {
 		})
 	}
 }
+
+func TestServeWritesConnectionCodeFile(t *testing.T) {
+	t.Parallel()
+	dir := t.TempDir()
+	codeFile := filepath.Join(dir, "connection.code")
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	var out, errOut bytes.Buffer
+	err := Execute(ctx, &out, &errOut, []string{
+		"serve", "no-auth-ssh",
+		"--relay", "http://127.0.0.1:1",
+		"--allow-insecure-relay",
+		"--state", filepath.Join(dir, "state.json"),
+		"--host-key", filepath.Join(dir, "host-key"),
+		"--connection-code-file", codeFile,
+	})
+	if err != nil && !strings.Contains(err.Error(), "context canceled") {
+		t.Fatal(err)
+	}
+	if out.Len() != 0 {
+		t.Fatalf("stdout = %q, want empty", out.String())
+	}
+	data, readErr := os.ReadFile(codeFile) // #nosec G304 -- path is created by this test.
+	if readErr != nil {
+		t.Fatal(readErr)
+	}
+	if !strings.HasPrefix(string(data), "rc1_") {
+		t.Fatalf("connection code does not have rc1 prefix")
+	}
+	info, statErr := os.Stat(codeFile)
+	if statErr != nil {
+		t.Fatal(statErr)
+	}
+	if info.Mode().Perm() != 0o600 {
+		t.Fatalf("mode = %o, want 600", info.Mode().Perm())
+	}
+}
