@@ -1,5 +1,9 @@
 # Relaycat
 
+Agent automation instructions are available in
+`.agents/skills/relaycat/SKILL.md` for tools that support repository-local
+Agent Skills.
+
 Relaycat creates end-to-end encrypted TCP tunnels through a gRPC relay. Both
 ends make outbound connections to the relay; Relaycat never performs NAT hole
 punching and never switches to a direct peer-to-peer path.

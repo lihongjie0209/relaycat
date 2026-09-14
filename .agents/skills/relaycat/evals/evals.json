@@ -1,0 +1,23 @@
+{
+  "skill_name": "relaycat",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "把一个本地 PostgreSQL 端口通过 Relaycat 暴露出来，并保证重启后连接码不变。",
+      "expected_output": "Uses expose with a persistent state file, explains code sensitivity, and provides a loopback connect command without inventing secrets.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "在 Windows 上把 Relaycat 内置 no-auth SSH 注册成自动启动服务。",
+      "expected_output": "Uses absolute persistent state, host-key, and connection-code paths; warns that the service runs as LocalSystem and that the code grants access.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Relaycat SSH 延时 280ms，但是 ping 只有 20ms，帮我定位和测试。",
+      "expected_output": "Separates Relaycat banner handshake, SSH handshake, and steady-state RTT; measures both transfer directions and avoids blaming latency on bandwidth without evidence.",
+      "files": []
+    }
+  ]
+}
