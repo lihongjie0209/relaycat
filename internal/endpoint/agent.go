@@ -132,7 +132,22 @@ func openTarget(ctx context.Context, cfg AgentConfig) (net.Conn, <-chan error, e
 		}
 		return conn, nil, nil
 	}
-	bridgeConn, handlerConn := net.Pipe()
+	listener, err := (&net.ListenConfig{}).Listen(ctx, "tcp", "127.0.0.1:0")
+	if err != nil {
+		return nil, nil, fmt.Errorf("creating handler bridge: %w", err)
+	}
+	dialer := net.Dialer{}
+	handlerConn, err := dialer.DialContext(ctx, "tcp", listener.Addr().String())
+	if err != nil {
+		_ = listener.Close()
+		return nil, nil, fmt.Errorf("dialing handler bridge: %w", err)
+	}
+	bridgeConn, err := listener.Accept()
+	_ = listener.Close()
+	if err != nil {
+		_ = handlerConn.Close()
+		return nil, nil, fmt.Errorf("accepting handler bridge: %w", err)
+	}
 	done := make(chan error, 1)
 	go func() {
 		defer func() { _ = handlerConn.Close() }()

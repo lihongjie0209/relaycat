@@ -72,6 +72,7 @@ func RunServer(ctx context.Context, cfg ServerConfig, ready func(net.Addr)) erro
 		grpc.ChainStreamInterceptor(StreamAuthInterceptor(cfg.Token, cfg.NoAuth)),
 		grpc.ChainUnaryInterceptor(UnaryAuthInterceptor(cfg.Token, cfg.NoAuth)),
 		grpc.MaxRecvMsgSize(128<<10), grpc.MaxSendMsgSize(128<<10),
+		grpc.InitialWindowSize(1<<20), grpc.InitialConnWindowSize(4<<20),
 		grpc.KeepaliveParams(keepalive.ServerParameters{Time: 30 * time.Second, Timeout: 10 * time.Second}),
 	)
 	grpcServer := grpc.NewServer(opts...)

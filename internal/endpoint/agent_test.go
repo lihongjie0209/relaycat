@@ -57,3 +57,41 @@ func TestOpenTargetUsesConnectionHandler(t *testing.T) {
 		t.Fatalf("handler returned %v", err)
 	}
 }
+
+func TestOpenTargetPropagatesHalfCloseToHandler(t *testing.T) {
+	t.Parallel()
+	cfg := AgentConfig{Handler: func(_ context.Context, conn net.Conn) error {
+		defer func() { _ = conn.Close() }()
+		payload, err := io.ReadAll(conn)
+		if err != nil {
+			return err
+		}
+		_, err = conn.Write([]byte("received:" + string(payload)))
+		return err
+	}}
+	conn, done, err := openTarget(context.Background(), cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = conn.Close() }()
+	if _, err := io.WriteString(conn, "payload"); err != nil {
+		t.Fatal(err)
+	}
+	closeWriter, ok := conn.(interface{ CloseWrite() error })
+	if !ok {
+		t.Fatal("handler bridge does not support half-close")
+	}
+	if err := closeWriter.CloseWrite(); err != nil {
+		t.Fatal(err)
+	}
+	response, err := io.ReadAll(conn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(response) != "received:payload" {
+		t.Fatalf("response = %q", response)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+}

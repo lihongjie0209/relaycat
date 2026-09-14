@@ -18,6 +18,11 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const (
+	initialStreamWindowSize = 1 << 20
+	initialConnWindowSize   = 4 << 20
+)
+
 type DialConfig struct {
 	RelayURL      string
 	CAFile        string
@@ -60,6 +65,8 @@ func Dial(cfg DialConfig) (*grpc.ClientConn, relayv1.RelayServiceClient, error) 
 	conn, err := grpc.NewClient(u.Host,
 		grpc.WithTransportCredentials(creds),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+		grpc.WithInitialWindowSize(initialStreamWindowSize),
+		grpc.WithInitialConnWindowSize(initialConnWindowSize),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(128<<10), grpc.MaxCallSendMsgSize(128<<10)),
 	)
 	if err != nil {
