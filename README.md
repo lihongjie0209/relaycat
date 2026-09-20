@@ -207,6 +207,14 @@ and disables the service before removing its unit file.
 
 ## Windows service
 
+Release archives for Windows are built with a pinned, checksum-verified
+[XTLS Go toolchain](https://github.com/XTLS/go-win7) that restores legacy
+Windows runtime support removed from official Go releases after Go 1.20.
+Windows 7 SP1 systems should have the April 2016 convenience rollup
+KB3125574 (and its prerequisite servicing-stack update KB3020369) installed.
+Both 32-bit (`windows_386`) and 64-bit (`windows_amd64`) Windows 7 builds are
+published. The Windows race detector is not supported on Windows 7.
+
 Run an elevated PowerShell terminal and register any long-running Relaycat
 command after `--`. For example, to install the built-in SSH server with an
 automatic startup type:

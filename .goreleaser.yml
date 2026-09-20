@@ -1,12 +1,24 @@
 version: 2
 project_name: relaycat
 builds:
-  - id: relaycat
+  - id: relaycat-unix
     main: ./cmd/relaycat
     binary: relaycat
     env: [CGO_ENABLED=0]
-    goos: [linux, darwin, windows]
+    goos: [linux, darwin]
     goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Version={{.Version}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Commit={{.Commit}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
+  - id: relaycat-windows
+    main: ./cmd/relaycat
+    binary: relaycat
+    env: [CGO_ENABLED=0]
+    goos: [windows]
+    goarch: [386, amd64, arm64]
     flags: [-trimpath]
     ldflags:
       - -s -w

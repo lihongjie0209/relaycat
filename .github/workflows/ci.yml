@@ -84,3 +84,25 @@ jobs:
         with:
           go-version: stable
       - run: go build ./cmd/relaycat
+
+  windows-7-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [386, amd64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 1.26.x
+          cache: true
+      - name: Install Windows 7-compatible Go toolchain
+        run: ./scripts/install-go-win7.sh "$RUNNER_TEMP/go-win7"
+      - name: Build Windows 7 binary
+        env:
+          CGO_ENABLED: 0
+          GOARCH: ${{ matrix.arch }}
+          GOOS: windows
+          GOROOT: ${{ runner.temp }}/go-win7
+        run: "$GOROOT/bin/go" build -trimpath -o "relaycat_windows_${GOARCH}.exe" ./cmd/relaycat

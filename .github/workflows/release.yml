@@ -16,7 +16,12 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
-          go-version: stable
+          go-version: 1.26.x
+      - name: Install Windows 7-compatible Go toolchain
+        run: |
+          ./scripts/install-go-win7.sh "$RUNNER_TEMP/go-win7"
+          echo "GOROOT=$RUNNER_TEMP/go-win7" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/go-win7/bin" >> "$GITHUB_PATH"
       - uses: anchore/sbom-action/download-syft@v0
       - uses: goreleaser/goreleaser-action@v6
         with:
