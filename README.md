@@ -210,8 +210,9 @@ and disables the service before removing its unit file.
 Release archives for Windows are built with a pinned, checksum-verified
 [XTLS Go toolchain](https://github.com/XTLS/go-win7) that restores legacy
 Windows runtime support removed from official Go releases after Go 1.20.
-Windows 7 SP1 systems should have the April 2016 convenience rollup
-KB3125574 (and its prerequisite servicing-stack update KB3020369) installed.
+Windows release binaries are built with XTLS Go's `source-legacy` compatibility
+patch and support Windows 7 SP1 without KB2533623 or KB3125574. Installing all
+available Windows security updates is still strongly recommended.
 Both 32-bit (`windows_386`) and 64-bit (`windows_amd64`) Windows 7 builds are
 published. The Windows race detector is not supported on Windows 7.
 
