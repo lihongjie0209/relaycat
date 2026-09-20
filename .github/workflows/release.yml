@@ -23,7 +23,7 @@ jobs:
           echo "GOROOT=$RUNNER_TEMP/go-win7" >> "$GITHUB_ENV"
           echo "$RUNNER_TEMP/go-win7/bin" >> "$GITHUB_PATH"
       - uses: anchore/sbom-action/download-syft@v0
-      - uses: goreleaser/goreleaser-action@v6
+      - uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
           version: latest
