@@ -213,6 +213,11 @@ Windows runtime support removed from official Go releases after Go 1.20.
 Windows release binaries are built with XTLS Go's `source-legacy` compatibility
 patch and support Windows 7 SP1 without KB2533623 or KB3125574. Installing all
 available Windows security updates is still strongly recommended.
+Relaycat also supplements the operating system certificate store with the
+Mozilla/NSS public root bundle maintained by Go's `x509roots` project. This
+allows older Windows installations to validate current public Relay TLS
+certificates without installing machine-wide roots. `--ca-file` remains
+available for private certificate authorities.
 Both 32-bit (`windows_386`) and 64-bit (`windows_amd64`) Windows 7 builds are
 published. The Windows race detector is not supported on Windows 7.
 
