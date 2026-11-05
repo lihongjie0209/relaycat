@@ -41,6 +41,8 @@ For routers with limited storage, use the `linux_mipsle_upx` archive. Its
 extracted executable is under 5 MiB and supports the same commands. The
 standard archive remains available if the packed executable does not run on a
 particular device.
+ARM64 devices such as the Phicomm N1 can use `linux_arm64` or the smaller
+`linux_arm64_upx` archive instead. The MIPS archive is for a different CPU.
 
 Run repeatable microbenchmarks with `make benchmark`. They cover connection-code
 serialization, Noise handshakes, and encrypted transport frames up to the

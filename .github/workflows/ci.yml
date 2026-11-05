@@ -109,7 +109,7 @@ jobs:
         run: |
           "$GOROOT/bin/go" build -trimpath -o "relaycat_windows_${GOARCH}.exe" ./cmd/relaycat
 
-  openwrt-mipsle-build:
+  small-linux-builds:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -129,3 +129,10 @@ jobs:
           ./scripts/install-upx.sh "$RUNNER_TEMP/upx"
           echo "$RUNNER_TEMP/upx/upx-5.3.0-amd64_linux" >> "$GITHUB_PATH"
       - run: ./scripts/pack-openwrt.sh relaycat_openwrt_mipsle
+      - name: Build ARM64 binary
+        env:
+          CGO_ENABLED: 0
+          GOARCH: arm64
+          GOOS: linux
+        run: go build -trimpath -ldflags='-s -w' -o relaycat_linux_arm64 ./cmd/relaycat
+      - run: ./scripts/pack-openwrt.sh relaycat_linux_arm64
