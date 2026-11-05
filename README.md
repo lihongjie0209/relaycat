@@ -37,6 +37,10 @@ make build
 OpenWrt devices with a little-endian MIPS CPU and software floating point can
 use the `linux_mipsle` release archive. It contains a statically linked binary;
 check the device architecture before installing it.
+For routers with limited storage, use the `linux_mipsle_upx` archive. Its
+extracted executable is under 5 MiB and supports the same commands. The
+standard archive remains available if the packed executable does not run on a
+particular device.
 
 Run repeatable microbenchmarks with `make benchmark`. They cover connection-code
 serialization, Noise handshakes, and encrypted transport frames up to the

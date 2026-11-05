@@ -28,17 +28,36 @@ builds:
   - id: relaycat-openwrt-mipsle
     main: ./cmd/relaycat
     binary: relaycat
-    env: [CGO_ENABLED=0, GOMIPS=softfloat]
+    env: [CGO_ENABLED=0]
     goos: [linux]
     goarch: [mipsle]
+    gomips: [softfloat]
     flags: [-trimpath]
     ldflags:
       - -s -w
       - -X github.com/lihongjie0209/relaycat/internal/cli.Version={{.Version}}
       - -X github.com/lihongjie0209/relaycat/internal/cli.Commit={{.Commit}}
       - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
+  - id: relaycat-openwrt-mipsle-upx
+    main: ./cmd/relaycat
+    binary: relaycat
+    env: [CGO_ENABLED=0]
+    goos: [linux]
+    goarch: [mipsle]
+    gomips: [softfloat]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Version={{.Version}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Commit={{.Commit}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
+    hooks:
+      post:
+        - ./scripts/pack-openwrt.sh "{{ .Path }}"
 archives:
-  - formats: [tar.gz]
+  - id: standard
+    ids: [relaycat-unix, relaycat-windows]
+    formats: [tar.gz]
     files:
       - LICENSE
       - README.md
@@ -46,9 +65,26 @@ archives:
     format_overrides:
       - goos: windows
         formats: [zip]
+  - id: openwrt
+    ids: [relaycat-openwrt-mipsle]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    files:
+      - LICENSE
+      - README.md
+      - THIRD_PARTY_NOTICES.md
+  - id: openwrt-upx
+    ids: [relaycat-openwrt-mipsle-upx]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}_upx"
+    formats: [tar.gz]
+    files:
+      - LICENSE
+      - README.md
+      - THIRD_PARTY_NOTICES.md
 checksum:
   name_template: checksums.txt
 sboms:
   - artifacts: archive
+    ids: [standard, openwrt]
 changelog:
   sort: asc

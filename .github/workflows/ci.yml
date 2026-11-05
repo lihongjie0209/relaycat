@@ -123,4 +123,9 @@ jobs:
           GOARCH: mipsle
           GOOS: linux
           GOMIPS: softfloat
-        run: go build -trimpath -o relaycat_openwrt_mipsle ./cmd/relaycat
+        run: go build -trimpath -ldflags='-s -w' -o relaycat_openwrt_mipsle ./cmd/relaycat
+      - name: Install UPX
+        run: |
+          ./scripts/install-upx.sh "$RUNNER_TEMP/upx"
+          echo "$RUNNER_TEMP/upx/upx-5.3.0-amd64_linux" >> "$GITHUB_PATH"
+      - run: ./scripts/pack-openwrt.sh relaycat_openwrt_mipsle
