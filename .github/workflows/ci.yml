@@ -108,3 +108,19 @@ jobs:
           GOROOT: ${{ runner.temp }}/go-win7
         run: |
           "$GOROOT/bin/go" build -trimpath -o "relaycat_windows_${GOARCH}.exe" ./cmd/relaycat
+
+  openwrt-mipsle-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: true
+      - name: Build OpenWrt MIPS little-endian binary
+        env:
+          CGO_ENABLED: 0
+          GOARCH: mipsle
+          GOOS: linux
+          GOMIPS: softfloat
+        run: go build -trimpath -o relaycat_openwrt_mipsle ./cmd/relaycat

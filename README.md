@@ -34,6 +34,10 @@ make test
 make build
 ```
 
+OpenWrt devices with a little-endian MIPS CPU and software floating point can
+use the `linux_mipsle` release archive. It contains a statically linked binary;
+check the device architecture before installing it.
+
 Run repeatable microbenchmarks with `make benchmark`. They cover connection-code
 serialization, Noise handshakes, and encrypted transport frames up to the
 32 KiB tunnel chunk size. `make benchmark-integration` measures a complete TCP

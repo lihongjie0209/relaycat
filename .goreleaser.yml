@@ -25,6 +25,18 @@ builds:
       - -X github.com/lihongjie0209/relaycat/internal/cli.Version={{.Version}}
       - -X github.com/lihongjie0209/relaycat/internal/cli.Commit={{.Commit}}
       - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
+  - id: relaycat-openwrt-mipsle
+    main: ./cmd/relaycat
+    binary: relaycat
+    env: [CGO_ENABLED=0, GOMIPS=softfloat]
+    goos: [linux]
+    goarch: [mipsle]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Version={{.Version}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Commit={{.Commit}}
+      - -X github.com/lihongjie0209/relaycat/internal/cli.Date={{.Date}}
 archives:
   - formats: [tar.gz]
     files:
