@@ -44,6 +44,44 @@ particular device.
 ARM64 devices such as the Phicomm N1 can use `linux_arm64` or the smaller
 `linux_arm64_upx` archive instead. The MIPS archive is for a different CPU.
 
+## Install a release
+
+The installers select the latest release for the current OS and CPU, verify
+the archive against its SHA-256 entry in `checksums.txt`, and install the
+`relaycat` command. They do not create or restart a service.
+
+Linux:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/lihongjie0209/relaycat/main/scripts/install.sh | sh
+```
+
+OpenWrt (uses the compact release on ARM64 and little-endian MIPS):
+
+```sh
+wget -O /tmp/relaycat-install.sh https://raw.githubusercontent.com/lihongjie0209/relaycat/main/scripts/install.sh && sh /tmp/relaycat-install.sh
+```
+
+Windows PowerShell, including Windows 7 when TLS 1.2 is available:
+
+```powershell
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]3072; iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/lihongjie0209/relaycat/main/scripts/install.ps1'))
+```
+
+Linux and OpenWrt accept `--version v0.3.8`, `--install-dir DIR`, `--compact`,
+and `--standard`. Windows accepts `-Version v0.3.8` and `-InstallDir DIR`.
+By default, Linux installs to `/usr/local/bin` as root or `~/.local/bin` as a
+regular user, OpenWrt installs to `/usr/bin`, and Windows installs to the
+current user's `LocalAppData\Programs\Relaycat` directory.
+
+After installing a release that includes the update command, run
+`relaycat update` to download and install the latest version in place.
+`relaycat update --check` reports the available version without changing files.
+OpenWrt uses the compact package by default; use `--standard` to override it.
+Use `--force` to reinstall the same version or switch package formats. Restart
+any running Relaycat service after an update. On Windows, an in-use previous
+executable may be retained until it can be removed.
+
 Run repeatable microbenchmarks with `make benchmark`. They cover connection-code
 serialization, Noise handshakes, and encrypted transport frames up to the
 32 KiB tunnel chunk size. `make benchmark-integration` measures a complete TCP

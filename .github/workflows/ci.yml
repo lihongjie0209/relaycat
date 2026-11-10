@@ -136,3 +136,37 @@ jobs:
           GOOS: linux
         run: go build -trimpath -ldflags='-s -w' -o relaycat_linux_arm64 ./cmd/relaycat
       - run: ./scripts/pack-openwrt.sh relaycat_linux_arm64
+
+  install-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+      - run: sh scripts/install.sh --version v0.3.8 --install-dir "$RUNNER_TEMP/relaycat"
+      - run: |
+          "$RUNNER_TEMP/relaycat/relaycat" version
+      - run: go build -o "$RUNNER_TEMP/relaycat-selfupdate" ./cmd/relaycat
+      - run: |
+          "$RUNNER_TEMP/relaycat-selfupdate" update --version v0.3.8 --force
+      - run: |
+          "$RUNNER_TEMP/relaycat-selfupdate" version
+
+  install-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: stable
+      - shell: powershell
+        run: .\scripts\install.ps1 -Version v0.3.8 -InstallDir "$env:RUNNER_TEMP\relaycat"
+      - shell: powershell
+        run: '& "$env:RUNNER_TEMP\relaycat\relaycat.exe" version'
+      - shell: powershell
+        run: go build -o "$env:RUNNER_TEMP\relaycat-selfupdate.exe" ./cmd/relaycat
+      - shell: powershell
+        run: '& "$env:RUNNER_TEMP\relaycat-selfupdate.exe" update --version v0.3.8 --force'
+      - shell: powershell
+        run: '& "$env:RUNNER_TEMP\relaycat-selfupdate.exe" version'
