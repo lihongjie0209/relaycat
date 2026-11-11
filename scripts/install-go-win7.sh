@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly version="1.26.5"
+readonly version="1.26.7"
 readonly release_url="https://github.com/XTLS/go-win7/releases/download/patched-${version}"
-readonly sdk_sha256="aaec2901eb40be5068edce46267c4a287f2ac38cbfd9bbcb76f0320df7168e2d"
-readonly legacy_sha256="1fded9947a2da9e3eb8f6dc1754637dbb4f4eb82d6024c227fae870986cf629c"
+readonly sdk_sha256="3ec8549eab338720c1a891f37c6d2467e7205997554bf649527d083f9973b82d"
+readonly legacy_sha256="43b0ce97dff850fa0804dc86aa1b978c51ec3a4a18f87f1660f04c06779b9118"
 
 if [[ $# -ne 1 || -z "$1" ]]; then
   echo "usage: $0 DESTINATION" >&2
